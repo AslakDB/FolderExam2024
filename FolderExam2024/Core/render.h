@@ -66,9 +66,7 @@ bool inside;
       sphere.CreateSphere(SphereModel2);
       sphere.CreateSphere(SphereModel3);
         sphere.CreateSphere(SphereModel4);
-
-
-     
+        
         
         floorModel.PlayerPos = glm::vec3(0.f,0.f,0.f);
        
@@ -129,7 +127,7 @@ bool inside;
 
             glLineWidth(3);
 
-            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+           // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
             
             for (model* element : sphere_models)
             {

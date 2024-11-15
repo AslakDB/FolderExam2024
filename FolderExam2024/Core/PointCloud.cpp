@@ -56,6 +56,13 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
         point.XYZ.x *= -1;
         PointCloudModel.vertices.emplace_back(point.XYZ, glm::vec3(0.f), glm::vec3(0.f));
     }
+
+    //first we may want to sort the points before we create the indices
+    
+    for (auto point : points)
+    {
+        PointCloudModel.indices.emplace_back(1,3,2);
+    }
     
     std::cout<<"Number of points: "<<count<<std::endl;
     PointCloudModel.Bind();

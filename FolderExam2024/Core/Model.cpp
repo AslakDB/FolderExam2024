@@ -99,7 +99,5 @@ void model::DrawMesh(unsigned int shaderProgram)
         glDrawElements(GL_TRIANGLES, indices.size()* 3, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
-
-
-        
+    
 }

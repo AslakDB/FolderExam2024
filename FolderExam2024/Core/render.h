@@ -59,7 +59,7 @@ bool inside;
         glm::mat4 trans = glm::mat4(1.0f);
         glm::mat4 projection;
         
-        pointCloud.CreatePlane( PCloud, "Trondheim_punkt_sky_comp3.txt");
+        pointCloud.CreatePlane( PCloud, "Trondheim_punkt_sky_comp6.txt");
         
         sphere.CreateSphere(SphereModel0);
       sphere.CreateSphere(SphereModel1);

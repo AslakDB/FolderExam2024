@@ -7,8 +7,9 @@
 #include "Model.h"
 #include "Sphere.h"
 #include "Collision.h"
+#include "PointCloud.h"
 
-
+PointCloud pointCloud;
 Sphere sphere;
 Collision coll;
 
@@ -32,10 +33,10 @@ bool inside;
     Render() = default;
     void render(GLFWwindow* window, unsigned int shaderProgram, float deltaTime, float lastFrame) {
          
-        //model SphereModel0, SphereModel1, SphereModel2, SphereModel3, SphereModel4;
+        model SphereModel0, SphereModel1, SphereModel2, SphereModel3, SphereModel4;
         
-        model floorModel, ZWallP, ZWallN, XWallP, XWallN;
-        std::vector<model*> models = { &floorModel, &ZWallP, &ZWallN, &XWallP, &XWallN};
+        model floorModel, ZWallP, ZWallN, XWallP, XWallN, PCloud;
+        std::vector<model*> models = { &floorModel, &ZWallP, &ZWallN, &XWallP, &XWallN, &PCloud};
 
        
         std::vector<model*> sphere_models;
@@ -48,25 +49,23 @@ bool inside;
         pointCloudModel->Bind();
         pointCloudModel->PlayerScale = glm::vec3(0.2f);*/
         
-        /*sphere_models.emplace_back(&SphereModel0);
+        sphere_models.emplace_back(&SphereModel0);
         sphere_models.emplace_back(&SphereModel1);
         sphere_models.emplace_back(&SphereModel2);
         sphere_models.emplace_back(&SphereModel3);
-        sphere_models.emplace_back(&SphereModel4);*/
+        sphere_models.emplace_back(&SphereModel4);
      
 
         glm::mat4 trans = glm::mat4(1.0f);
         glm::mat4 projection;
         
-           
-
+        pointCloud.CreatePlane( PCloud, "Trondheim_punkt_sky_comp3.txt");
         
-        /*
         sphere.CreateSphere(SphereModel0);
       sphere.CreateSphere(SphereModel1);
       sphere.CreateSphere(SphereModel2);
       sphere.CreateSphere(SphereModel3);
-        sphere.CreateSphere(SphereModel4);*/
+        sphere.CreateSphere(SphereModel4);
 
 
      
@@ -89,18 +88,15 @@ bool inside;
         XWallP.PlayerRotation = glm::vec3(0.f,0.f,90.f);
         XWallP.PlayerScale = glm::vec3(0.1f,1.f,1.f);
 
-        /*
         SphereModel0.PlayerPos = glm::vec3(-4.f,0.1f,0.3f);
         SphereModel1.PlayerPos = glm::vec3(-3.f,0.1f,0.2f);
         SphereModel2.PlayerPos = glm::vec3(0.f,0.1f,-1.f);
         SphereModel3.PlayerPos = glm::vec3(3.f,0.1f,0.f);
         SphereModel4.PlayerPos = glm::vec3(1.f,0.1f,-1.f);
-        */
         
         while (!glfwWindowShouldClose(window))
             {
 
-            /*
             coll.SphereSphereCollision(sphere_models);
            coll.SphereBoxCollision(sphere_models,models);
 
@@ -110,7 +106,6 @@ bool inside;
            sphere.Move(SphereModel2, deltaTime, SphereModel2.Velocity);
            sphere.Move(SphereModel3, deltaTime, SphereModel3.Velocity);
             sphere.Move(SphereModel4, deltaTime, SphereModel4.Velocity);
-            */
             
             float currentFrame = glfwGetTime();
             deltaTime = currentFrame - lastFrame;

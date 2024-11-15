@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Model.cpp" />
+    <ClCompile Include="Core\PointCloud.cpp" />
     <ClCompile Include="Core\Shaders.cpp" />
     <ClCompile Include="FolderExam2024.cpp" />
     <ClCompile Include="glad.c" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Collision.h" />
     <ClInclude Include="Core\Model.h" />
+    <ClInclude Include="Core\PointCloud.h" />
     <ClInclude Include="Core\render.h" />
     <ClInclude Include="Core\Setup.h" />
     <ClInclude Include="Core\Shaders.h" />

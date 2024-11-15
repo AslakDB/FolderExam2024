@@ -109,10 +109,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(SolutionDir)\FolderExam2024\Dependencies\includes</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)\FolderExam2024\Dependencies\libs</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);glfw3.lib;Opengl32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -154,7 +157,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Core\Camera.cpp" />
+    <ClCompile Include="Core\Model.cpp" />
+    <ClCompile Include="Core\Shaders.cpp" />
     <ClCompile Include="FolderExam2024.cpp" />
+    <ClCompile Include="glad.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Shaders\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Core\AABB.h" />
+    <ClInclude Include="Core\Camera.h" />
+    <ClInclude Include="Core\Collision.h" />
+    <ClInclude Include="Core\Model.h" />
+    <ClInclude Include="Core\render.h" />
+    <ClInclude Include="Core\Setup.h" />
+    <ClInclude Include="Core\Shaders.h" />
+    <ClInclude Include="Core\Sphere.h" />
+    <ClInclude Include="Core\Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

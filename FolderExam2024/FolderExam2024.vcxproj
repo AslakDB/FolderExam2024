@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Model.cpp" />
+    <ClCompile Include="Core\Octree.cpp" />
     <ClCompile Include="Core\PointCloud.cpp" />
     <ClCompile Include="Core\Shaders.cpp" />
     <ClCompile Include="FolderExam2024.cpp" />
@@ -171,7 +172,9 @@
     <ClInclude Include="Core\AABB.h" />
     <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Collision.h" />
+    <ClInclude Include="Core\delaunator.hpp" />
     <ClInclude Include="Core\Model.h" />
+    <ClInclude Include="Core\Octree.h" />
     <ClInclude Include="Core\PointCloud.h" />
     <ClInclude Include="Core\render.h" />
     <ClInclude Include="Core\Setup.h" />

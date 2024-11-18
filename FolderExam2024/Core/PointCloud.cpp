@@ -8,6 +8,12 @@
 #include <iostream>
 #include <vector>
 #include <cfloat>
+#include "Octree.h"
+#include <unordered_map>
+#include "delaunator.hpp"
+
+
+
 
 void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
 {
@@ -37,7 +43,7 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
             float yf = z;
             float zf = y;
 
-            Vertex point(glm::vec3(xf, yf, zf), glm::vec3(0.f), glm::vec3(0.f));
+            Vertex point(glm::vec3(xf, yf, zf), glm::vec3(0.f), glm::vec3(1.f));
             // Update min/max bounds
             minPoint = glm::min(minPoint, point.XYZ);
             maxPoint = glm::max(maxPoint, point.XYZ);
@@ -48,22 +54,41 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
     }
 
     file.close();
-
-    // Translate points to move the minimum point to the origin
     for (auto &point : points) {
         point.XYZ -= minPoint;
         point.XYZ *= 0.1f;
         point.XYZ.x *= -1;
-        PointCloudModel.vertices.emplace_back(point.XYZ, glm::vec3(0.f), glm::vec3(0.f));
+        PointCloudModel.vertices.emplace_back(point.XYZ, glm::vec3(0.f), glm::vec3(1.f));
     }
 
-    //first we may want to sort the points before we create the indices
+
+    // Convert points to a format that Delaunator can use
+    std::vector<double> coords;
+    for (const auto& vertex : PointCloudModel.vertices) {
+        coords.push_back(vertex.XYZ.x);
+        coords.push_back(vertex.XYZ.z);
+    }
+
+    // Perform Delaunay triangulation
+    delaunator::Delaunator d(coords);
+
     
-    for (auto point : points)
-    {
-        PointCloudModel.indices.emplace_back(1,3,2);
+    // Extract triangle indices
+    for (size_t i = 0; i < d.triangles.size(); i += 3) {
+        Triangle tri(d.triangles[i], d.triangles[i + 1], d.triangles[i + 2]);
+        PointCloudModel.indices.push_back(tri);
     }
     
-    std::cout<<"Number of points: "<<count<<std::endl;
+    std::cout << "Number of points: " << count << std::endl;
+    for (Triangle& index : PointCloudModel.indices)
+    {
+        glm::vec3 normal = glm::cross( PointCloudModel.vertices[index.B].XYZ - PointCloudModel.vertices[index.A].XYZ, PointCloudModel.vertices[index.C].XYZ - PointCloudModel.vertices[index.A].XYZ);
+
+        PointCloudModel.vertices[index.A].Normals += glm::normalize(normal);
+        PointCloudModel.vertices[index.B].Normals += glm::normalize(normal);
+        PointCloudModel.vertices[index.C].Normals += glm::normalize(normal);
+    }
     PointCloudModel.Bind();
 }
+
+

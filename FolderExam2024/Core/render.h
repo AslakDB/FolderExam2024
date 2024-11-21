@@ -56,7 +56,7 @@ struct Render
         glm::mat4 projection;
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        pointCloud.CreatePlane( PCloud, "Trondheim_punkt_sky_comp3.txt");
+        pointCloud.CreatePlane( PCloud, "Trondheim_punkt_sky_comp6.txt");
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[seconds]" << std::endl;
 
@@ -87,7 +87,8 @@ struct Render
         XWallP.PlayerScale = glm::vec3(0.1f,1.f,1.f);
 
         SphereModel0.PlayerPos = glm::vec3(-1.f,1.f,-1.f);
-        SphereModel1.PlayerPos = glm::vec3(-6.f,-0.1f,5.2f);
+        SphereModel1.PlayerPos = glm::vec3(-6.f,1.f,5.2f);
+        std::cout<< SphereModel1.PlayerPos.y <<std::endl;
         SphereModel2.PlayerPos = glm::vec3(0.f,0.1f,-1.f);
         SphereModel3.PlayerPos = glm::vec3(2.f,-0.1f,0.f);
         SphereModel4.PlayerPos = glm::vec3(1.f,0.1f,-1.f);
@@ -102,19 +103,22 @@ struct Render
 
             
             sphere.Move(SphereModel0, deltaTime, SphereModel0.Velocity);
-            sphere.Move(SphereModel1, deltaTime, SphereModel1.Velocity);
+            sphere.Move(SphereModel1, deltaTime, glm::vec3(-1.f,0.f,0.f));
             sphere.Move(SphereModel2, deltaTime, SphereModel2.Velocity);
             sphere.Move(SphereModel3, deltaTime, SphereModel3.Velocity);
             sphere.Move(SphereModel4, deltaTime, SphereModel4.Velocity);
 
 
             /*for (auto Spheres : sphere_models)
-            {
+            {}*/
                 for (auto element : PCloud.indices)
                 {
-                    calculateBarycentric( PCloud.vertices[element.A],PCloud.vertices[element.B],PCloud.vertices[element.C], Spheres->PlayerPos);
+                    //check if a ball is inside the plane
+                    calculateBarycentric( PCloud.vertices[element.A],PCloud.vertices[element.B],PCloud.vertices[element.C], SphereModel1.PlayerPos);
                 }
-            }*/
+            
+
+           std::cout<<SphereModel1.PlayerPos.x<<", " << SphereModel1.PlayerPos.y<<", " << SphereModel1.PlayerPos.z <<std::endl;
                 float currentFrame = glfwGetTime();
                 deltaTime = currentFrame - lastFrame;
                 lastFrame = currentFrame;
@@ -239,8 +243,7 @@ struct Render
         glm::vec3 x1 = Q.XYZ - P.XYZ;
         glm::vec3 x2 = R.XYZ - P.XYZ;
         float Areal = calculateNormal(x1,x2);
-
-
+        
         glm::vec3 u1 = Q.XYZ- PlayerPos;
         glm::vec3 u2 = R.XYZ- PlayerPos;
 
@@ -249,14 +252,16 @@ struct Render
         glm::vec3 v1 = R.XYZ - PlayerPos;
         glm::vec3 v2 = P.XYZ - PlayerPos;
 
-        float V = calculateNormal(v1,v2)  / Areal;
+        float V = calculateNormal(v1,v2)/ Areal;
 
         float W = 1 - U - V;
 
         if (U >=0 && V >= 0 && W >=0)
         {
+            std::cout << U << ", "<<V<<", "<<W << std::endl;
             float height=U* P.XYZ.y+ V * Q.XYZ.y + W * R.XYZ.y;
-            PlayerPos.y = height + 0.5;
+            std::cout << height << std::endl;
+            PlayerPos.y = height + 0.5f;
             return true;
         }
         return false;

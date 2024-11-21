@@ -23,8 +23,8 @@ float lastX = 960, lastY = 540;
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 void ProsessInput(GLFWwindow *window, float deltaTime, model& sphere);
-
-
+float calculateNormal(glm::vec3& vektor1, glm::vec3& vektor2);
+bool calculateBarycentric(Vertex& P, Vertex& R, Vertex& Q, glm::vec3& PlayerPos);
 
 struct Render {
 bool inside;
@@ -41,13 +41,7 @@ bool inside;
        
         std::vector<model*> sphere_models;
 
-        /*std::vector<Vertex> pointCloud = math.loadPointCloud("Trondheim_punkt_sky_comp2.txt", 100.f);
-        model* pointCloudModel = new model();
-        pointCloudModel->vertices = pointCloud;
-        models.emplace_back(pointCloudModel);
         
-        pointCloudModel->Bind();
-        pointCloudModel->PlayerScale = glm::vec3(0.2f);*/
         
         sphere_models.emplace_back(&SphereModel0);
         sphere_models.emplace_back(&SphereModel1);
@@ -86,11 +80,13 @@ bool inside;
         XWallP.PlayerRotation = glm::vec3(0.f,0.f,90.f);
         XWallP.PlayerScale = glm::vec3(0.1f,1.f,1.f);
 
-        SphereModel0.PlayerPos = glm::vec3(-4.f,0.1f,0.3f);
-        SphereModel1.PlayerPos = glm::vec3(-3.f,0.1f,0.2f);
+        SphereModel0.PlayerPos = glm::vec3(-1.f,1.f,-1.f);
+        SphereModel1.PlayerPos = glm::vec3(-2.f,-0.1f,0.2f);
         SphereModel2.PlayerPos = glm::vec3(0.f,0.1f,-1.f);
-        SphereModel3.PlayerPos = glm::vec3(3.f,0.1f,0.f);
+        SphereModel3.PlayerPos = glm::vec3(2.f,-0.1f,0.f);
         SphereModel4.PlayerPos = glm::vec3(1.f,0.1f,-1.f);
+
+
         
         while (!glfwWindowShouldClose(window))
             {
@@ -217,5 +213,37 @@ void ProsessInput(GLFWwindow *window, float deltaTime, model& sphere) {
         std::cout<<"move forward"<<std::endl;
         sphere.Velocity = glm::vec3(8.f,0.f,0.f);
 }
+    
+}
 
+
+float calculateNormal(glm::vec3& vektor1, glm::vec3& vektor2) {
+    return vektor1[0]* vektor2[2]- vektor2[0]*vektor1[2];
+}
+
+bool calculateBarycentric(Vertex& P, Vertex& R, Vertex& Q, glm::vec3& PlayerPos) {
+    glm::vec3 x1 = Q.XYZ - P.XYZ;
+    glm::vec3 x2 = R.XYZ - P.XYZ;
+    float Areal = calculateNormal(x1,x2);
+
+
+    glm::vec3 u1 = Q.XYZ- PlayerPos;
+    glm::vec3 u2 = R.XYZ- PlayerPos;
+
+    float U = calculateNormal(u1,u2) /Areal;
+
+    glm::vec3 v1 = R.XYZ - PlayerPos;
+    glm::vec3 v2 = P.XYZ - PlayerPos;
+
+    float V = calculateNormal(v1,v2)  / Areal;
+
+    float W = 1 - U - V;
+
+    if (U >=0 && V >= 0 && W >=0)
+    {
+        float height=U* P.XYZ.y+ V * Q.XYZ.y + W * R.XYZ.y;
+        PlayerPos.y = height + 0.5;
+        return true;
+    }
+    return false;
 }

@@ -43,8 +43,6 @@ struct Render
        
         std::vector<model*> sphere_models;
 
-        
-        
         sphere_models.emplace_back(&SphereModel0);
         sphere_models.emplace_back(&SphereModel1);
         sphere_models.emplace_back(&SphereModel2);
@@ -70,22 +68,7 @@ struct Render
         
         floorModel.PlayerPos = glm::vec3(0.f,0.f,0.f);
        
-        ZWallN.PlayerPos= glm::vec3(0.f, 0, -4.5f);
-        ZWallN.PlayerRotation = glm::vec3(90.f,0.f,0.f);
-        ZWallN.PlayerScale = glm::vec3(1.f,1.f,0.1f);
         
-        ZWallP.PlayerPos= glm::vec3(0.f, 0.f, 4.5f);
-        ZWallP.PlayerRotation = glm::vec3(-90.f,0.f,0.f);
-        ZWallP.PlayerScale = glm::vec3(1.f,1.f,0.1f);
-        
-        XWallN.PlayerPos= glm::vec3(-4.5f, 0.f, 0.f);
-        XWallN.PlayerRotation = glm::vec3(0.f,0.f,-90.f);
-        XWallN.PlayerScale = glm::vec3(0.1f,1.f,1.f);
-        
-        XWallP.PlayerPos= glm::vec3(4.5f, 0.f, 0.f);
-        XWallP.PlayerRotation = glm::vec3(0.f,0.f,90.f);
-        XWallP.PlayerScale = glm::vec3(0.1f,1.f,1.f);
-
         SphereModel0.PlayerPos = glm::vec3(-1.f,1.f,-1.f);
         SphereModel1.PlayerPos = glm::vec3(-6.f,1.f,5.2f);
         std::cout<< SphereModel1.PlayerPos.y <<std::endl;
@@ -103,17 +86,18 @@ struct Render
 
             
             sphere.Move(SphereModel0, deltaTime, SphereModel0.Velocity);
-            sphere.Move(SphereModel1, deltaTime, glm::vec3(-1.f,0.f,0.f));
+            sphere.Move(SphereModel1, deltaTime, glm::vec3(-2.f,0.f,0.f));
             sphere.Move(SphereModel2, deltaTime, SphereModel2.Velocity);
             sphere.Move(SphereModel3, deltaTime, SphereModel3.Velocity);
             sphere.Move(SphereModel4, deltaTime, SphereModel4.Velocity);
 
 
             /*for (auto Spheres : sphere_models)
-            {}*/
+            {
+            //check if the sphere is inside the point cloud grid
+            }*/
                 for (auto element : PCloud.indices)
-                {
-                    //check if a ball is inside the plane
+               {
                     calculateBarycentric( PCloud.vertices[element.A],PCloud.vertices[element.B],PCloud.vertices[element.C], SphereModel1.PlayerPos);
                 }
             

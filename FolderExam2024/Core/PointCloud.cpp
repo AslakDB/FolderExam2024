@@ -8,7 +8,6 @@
 #include <iostream>
 #include <vector>
 #include <cfloat>
-#include "Octree.h"
 #include <unordered_map>
 #include "delaunator.hpp"
 
@@ -73,13 +72,16 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
     delaunator::Delaunator d(coords);
 
     
+    int amoutOfTriangles = 0;
     // Extract triangle indices
     for (size_t i = 0; i < d.triangles.size(); i += 3) {
         Triangle tri(d.triangles[i], d.triangles[i + 1], d.triangles[i + 2]);
         PointCloudModel.indices.push_back(tri);
+        amoutOfTriangles++;
     }
     
     std::cout << "Number of points: " << count << std::endl;
+    std::cout << "Number of triangles: " << amoutOfTriangles << std::endl;
     for (Triangle& index : PointCloudModel.indices)
     {
         glm::vec3 normal = glm::cross( PointCloudModel.vertices[index.B].XYZ - PointCloudModel.vertices[index.A].XYZ, PointCloudModel.vertices[index.C].XYZ - PointCloudModel.vertices[index.A].XYZ);

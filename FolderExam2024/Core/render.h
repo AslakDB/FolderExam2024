@@ -9,6 +9,7 @@
 #include "Collision.h"
 #include "PointCloud.h"
 #include <chrono>
+#include "grid.h"
 
 PointCloud pointCloud;
 Sphere sphere;
@@ -25,7 +26,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 void ProsessInput(GLFWwindow *window, float deltaTime, model& sphere);
 float calculateNormal(glm::vec3& vektor1, glm::vec3& vektor2);
-bool calculateBarycentric(Vertex& P, Vertex& R, Vertex& Q, glm::vec3& PlayerPos);
+bool calculateBarycentric(Vertex& P, Vertex& R, Vertex& Q, glm::vec3& PlayerPos, glm::vec3 normal);
 
 struct Render
 {
@@ -34,22 +35,25 @@ struct Render
     
     Render() = default;
     void render(GLFWwindow* window, unsigned int shaderProgram, float deltaTime, float lastFrame) {
-         
-        model SphereModel0, SphereModel1, SphereModel2, SphereModel3, SphereModel4;
+
+        float cellSize = 1.0f;
+        
+        glm::vec3 normal = glm::vec3(0.f);
+        const float gravitiy = 9.81f ;
+        float friction = 0.0000001f;
+        
         
         model floorModel, ZWallP, ZWallN, XWallP, XWallN, PCloud;
         std::vector<model*> models = { &floorModel, &ZWallP, &ZWallN, &XWallP, &XWallN, &PCloud};
 
-       
-        std::vector<model*> sphere_models;
+        std::vector<model> sphereModels(20);
+        std::vector<model*> sphere_models_ptr;
 
-        sphere_models.emplace_back(&SphereModel0);
-        sphere_models.emplace_back(&SphereModel1);
-        sphere_models.emplace_back(&SphereModel2);
-        sphere_models.emplace_back(&SphereModel3);
-        sphere_models.emplace_back(&SphereModel4);
-     
-
+        for (int i = 0; i < sphereModels.size(); ++i) {
+            sphere_models_ptr.emplace_back(&sphereModels[i]);
+            sphere.CreateSphere(sphereModels[i]);
+        }
+        
         glm::mat4 trans = glm::mat4(1.0f);
         glm::mat4 projection;
 
@@ -57,56 +61,62 @@ struct Render
         pointCloud.CreatePlane( PCloud, "Trondheim_punkt_sky_comp6.txt");
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[seconds]" << std::endl;
+        
+        
+         grid grid(pointCloud.minPoint, pointCloud.maxPoint, cellSize);
+                for (const auto& triangle : PCloud.indices) {
+                    grid.addTriangle(triangle, PCloud.vertices);
+                }
+        
 
+        for (int i = 0; i < sphere_models_ptr.size(); i+=1)
+        {
+            sphere_models_ptr[i]->PlayerPos = glm::vec3(-5 - i, 1, 5 + i*2);
+        }
         
-        sphere.CreateSphere(SphereModel0);
-        sphere.CreateSphere(SphereModel1);
-        sphere.CreateSphere(SphereModel2);
-        sphere.CreateSphere(SphereModel3);
-        sphere.CreateSphere(SphereModel4);
-        
-        
-        floorModel.PlayerPos = glm::vec3(0.f,0.f,0.f);
-       
-        
-        SphereModel0.PlayerPos = glm::vec3(-1.f,1.f,-1.f);
-        SphereModel1.PlayerPos = glm::vec3(-6.f,1.f,5.2f);
-        std::cout<< SphereModel1.PlayerPos.y <<std::endl;
-        SphereModel2.PlayerPos = glm::vec3(0.f,0.1f,-1.f);
-        SphereModel3.PlayerPos = glm::vec3(2.f,-0.1f,0.f);
-        SphereModel4.PlayerPos = glm::vec3(1.f,0.1f,-1.f);
-
-
-        
+        for (auto value : sphere_models_ptr)
+        {
+            value->Velocity = glm::vec3(-1.f,0.f,0.f);
+        }
         while (!glfwWindowShouldClose(window))
         {
-
-            coll.SphereSphereCollision(sphere_models);
-            coll.SphereBoxCollision(sphere_models,models);
+            
+            coll.SphereSphereCollision(sphere_models_ptr);
+            
+          //  coll.SphereBoxCollision(sphere_models,models); //When i dont have models, this sets Sphere velocity to NaN
+          
 
             
-            sphere.Move(SphereModel0, deltaTime, SphereModel0.Velocity);
-            sphere.Move(SphereModel1, deltaTime, glm::vec3(-2.f,0.f,0.f));
-            sphere.Move(SphereModel2, deltaTime, SphereModel2.Velocity);
-            sphere.Move(SphereModel3, deltaTime, SphereModel3.Velocity);
-            sphere.Move(SphereModel4, deltaTime, SphereModel4.Velocity);
-
-
-            /*for (auto Spheres : sphere_models)
+            
+            for (auto value : sphere_models_ptr)
             {
-            //check if the sphere is inside the point cloud grid
-            }*/
-                for (auto element : PCloud.indices)
-               {
-                    calculateBarycentric( PCloud.vertices[element.A],PCloud.vertices[element.B],PCloud.vertices[element.C], SphereModel1.PlayerPos);
-                }
-            
+                sphere.Move(*value, deltaTime, gravitiy, friction);
+            }
 
-           std::cout<<SphereModel1.PlayerPos.x<<", " << SphereModel1.PlayerPos.y<<", " << SphereModel1.PlayerPos.z <<std::endl;
+            for (model* sphereModel : sphere_models_ptr) {
+                glm::vec3 spherePosition = sphereModel->PlayerPos;
+                std::vector<Triangle> relevantTriangles = grid.getTrianglesInCell(spherePosition);
+
+                for (const auto& triangle : relevantTriangles) {
+                    if (calculateBarycentric(PCloud.vertices[triangle.A], PCloud.vertices[triangle.B], PCloud.vertices[triangle.C], spherePosition , normal)) {
+                        //sphereModel->PlayerPos = spherePosition;
+                        if (sphereModel->PlayerPos.y <= spherePosition.y && sphereModel->Velocity.y < 0) {
+                            
+                            glm::vec3 normal = glm::normalize(glm::cross(PCloud.vertices[triangle.B].XYZ - PCloud.vertices[triangle.A].XYZ, PCloud.vertices[triangle.C].XYZ - PCloud.vertices[triangle.A].XYZ));
+                            sphereModel->Velocity = glm::reflect(sphereModel->Velocity, normal) * 0.65f;
+                        }
+                        
+                        coll.CloudSphereCollition( PCloud, sphere_models_ptr, deltaTime, gravitiy, glm::vec3(0.f));
+                        // Update the sphere's position
+                        /*break; // Exit the loop once the position is updated*/
+                    }
+                }
+            }
+                        
                 float currentFrame = glfwGetTime();
                 deltaTime = currentFrame - lastFrame;
                 lastFrame = currentFrame;
-                ProsessInput(window, deltaTime, ZWallN);
+                ProsessInput(window, deltaTime,  sphereModels[0]);
             
 
                 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
@@ -125,9 +135,9 @@ struct Render
 
                 glLineWidth(3);
 
-                // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-            
-                for (model* element : sphere_models)
+            //     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
+                for (model* element : sphere_models_ptr)
                 {
                     element->CalculateMatrix();
                     element->CalculateBoundingBox();
@@ -215,7 +225,13 @@ struct Render
             std::cout<<"move forward"<<std::endl;
             sphere.Velocity = glm::vec3(8.f,0.f,0.f);
         }
-    
+
+        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+        {
+            std::cout<<"NewPos"<<std::endl;
+            sphere.PlayerPos = camera.cameraPos;
+            sphere.Velocity = camera.cameraFront * 8.f ;
+        }
     }
 
 
@@ -223,7 +239,7 @@ struct Render
         return vektor1[0]* vektor2[2]- vektor2[0]*vektor1[2];
     }
 
-    bool calculateBarycentric(Vertex& P, Vertex& R, Vertex& Q, glm::vec3& PlayerPos) {
+    bool calculateBarycentric(Vertex& P, Vertex& R, Vertex& Q, glm::vec3& PlayerPos, glm::vec3 normal) {
         glm::vec3 x1 = Q.XYZ - P.XYZ;
         glm::vec3 x2 = R.XYZ - P.XYZ;
         float Areal = calculateNormal(x1,x2);
@@ -242,10 +258,12 @@ struct Render
 
         if (U >=0 && V >= 0 && W >=0)
         {
-            std::cout << U << ", "<<V<<", "<<W << std::endl;
             float height=U* P.XYZ.y+ V * Q.XYZ.y + W * R.XYZ.y;
-            std::cout << height << std::endl;
             PlayerPos.y = height + 0.5f;
+            //calculate normal
+            glm::vec3 Newnormal = glm::cross( Q.XYZ - P.XYZ, R.XYZ - P.XYZ);
+            normal = Newnormal;
+            
             return true;
         }
         return false;

@@ -25,8 +25,8 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
         return;
     }
 
-    glm::vec3 minPoint(FLT_MAX);
-    glm::vec3 maxPoint(-FLT_MAX);
+    minPoint = glm::vec3(FLT_MAX);
+    maxPoint = glm::vec3(-FLT_MAX);
     bool skipLine = true;
     int count = 0;
     while (std::getline(file, line)) {
@@ -57,7 +57,7 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
         point.XYZ -= minPoint;
         point.XYZ *= 0.1f;
         point.XYZ.x *= -1;
-        PointCloudModel.vertices.emplace_back(point.XYZ, glm::vec3(0.f), glm::vec3(1.f));
+        PointCloudModel.vertices.emplace_back(point.XYZ, glm::vec3(0.f), glm::vec3(0.5f));
     }
 
 

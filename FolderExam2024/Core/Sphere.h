@@ -71,11 +71,15 @@ SphereModel.Bind();
     SphereModel.PlayerScale = glm::vec3(0.5f);
 }
 
-    void Move(model& SphereModel, float deltatime, glm::vec3 RandSpeed)
+    void Move(model& SphereModel, float deltatime,  float gravity, float friction)
 {
-   SphereModel.PlayerPos = SphereModel.PlayerPos + (RandSpeed * deltatime);
-}
+     SphereModel.PlayerPos += SphereModel.Velocity * deltatime;
+     SphereModel.Velocity.y -= gravity * deltatime;
 
+     // Apply friction to the horizontal components of the velocity
+     SphereModel.Velocity.x *= (1.0f - friction * deltatime);
+     SphereModel.Velocity.z *= (1.0f - friction * deltatime);
+}
 
     
    

@@ -47,6 +47,13 @@ public:
         }
     }
 
+/// collision sjekk mellom Sphere og Plane
+/// @param PCloud, sphere_models
+    void CloudSphereCollition(model &PCloud, std::vector<model*> sphere_models, float deltaTime, float gravitiy, glm::vec3 normal)
+    {
+        float radius = 0.5f;
+          
+    }
     /// collision sjekk mellom Sphere og AABB
     /// @param sphere_models 
     /// @param other_models 

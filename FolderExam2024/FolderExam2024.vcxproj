@@ -162,6 +162,7 @@
     <ClCompile Include="Core\Model.cpp" />
     <ClCompile Include="Core\PointCloud.cpp" />
     <ClCompile Include="Core\Shaders.cpp" />
+    <ClCompile Include="Core\TrackingPath.cpp" />
     <ClCompile Include="FolderExam2024.cpp" />
     <ClCompile Include="glad.c" />
   </ItemGroup>
@@ -180,6 +181,7 @@
     <ClInclude Include="Core\Setup.h" />
     <ClInclude Include="Core\Shaders.h" />
     <ClInclude Include="Core\Sphere.h" />
+    <ClInclude Include="Core\TrackingPath.h" />
     <ClInclude Include="Core\Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

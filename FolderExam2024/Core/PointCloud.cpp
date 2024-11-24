@@ -65,7 +65,7 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
         }
         else
         {
-            friction = 0.01f;
+            friction = 1.f;
             color = glm::vec3(0.0f, 1.0f, 0.0f);
         }
         PointCloudModel.vertices.emplace_back(point.XYZ, glm::vec3(0.f), color, friction);

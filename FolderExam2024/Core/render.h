@@ -10,11 +10,12 @@
 #include "PointCloud.h"
 #include <chrono>
 #include "grid.h"
+#include "TrackingPath.h"
 
 PointCloud pointCloud;
 Sphere sphere;
 Collision coll;
-
+TrackingPath trackingPath;
 // ABspline bsplineFunction;
 
 Camera camera;
@@ -41,11 +42,11 @@ struct Render
         glm::vec3 normal = glm::vec3(0.f);
         const float gravitiy = 9.81f ;
         float friction = pointCloud.friction;
-        float mass = 2.f;
+        float mass = 4.f;
         
         
-        model floorModel, ZWallP, ZWallN, XWallP, XWallN, PCloud;
-        std::vector<model*> models = { &floorModel, &ZWallP, &ZWallN, &XWallP, &XWallN, &PCloud};
+        model floorModel, ZWallP, ZWallN, XWallP, XWallN, PCloud, TrackPath;
+        std::vector<model*> models = { &floorModel, &ZWallP, &ZWallN, &XWallP, &XWallN, &PCloud, &TrackPath };
 
         std::vector<model> sphereModels(20);
         std::vector<model*> sphere_models_ptr;
@@ -54,7 +55,9 @@ struct Render
             sphere_models_ptr.emplace_back(&sphereModels[i]);
             sphere.CreateSphere(sphereModels[i]);
         }
-        
+
+       std::vector<glm::vec3>  BSplinePoint ;
+        trackingPath.CreateBSplinePath(TrackPath, BSplinePoint);
         glm::mat4 trans = glm::mat4(1.0f);
         glm::mat4 projection;
 
@@ -72,6 +75,7 @@ struct Render
 
         for (int i = 0; i < sphere_models_ptr.size(); i+=1)
         {
+            
             sphere_models_ptr[i]->PlayerPos = glm::vec3(-5 - i, 1, 5 + i*2);
         }
         
@@ -79,13 +83,36 @@ struct Render
         {
             value->Velocity = glm::vec3(-1.f,0.f,0.f);
         }
+
+        int framecount = 0;
+        int trackpoints = 0;
         while (!glfwWindowShouldClose(window))
         {
-            
+            framecount++;
             coll.SphereSphereCollision(sphere_models_ptr);
             
           //  coll.SphereBoxCollision(sphere_models,models); //When i dont have models, this sets Sphere velocity to NaN
-          
+
+
+              if (framecount % 100 == 0) {
+            for (auto value : sphere_models_ptr) {
+                BSplinePoint.emplace_back(value->PlayerPos);
+                if (BSplinePoint.size() > 5) {
+                    BSplinePoint.erase(BSplinePoint.begin());
+                }
+                try {
+                    // Ensure there are enough points for B-spline calculation
+                    if (BSplinePoint.size() >= 4) {
+                        trackingPath.CreateBSplinePath(TrackPath, BSplinePoint);
+                    } else {
+                        trackingPath.DrawPoints(TrackPath, BSplinePoint);
+                    }
+                    
+                } catch (const std::exception& e) {
+                    std::cerr << "Exception in render loop: " << e.what() << std::endl;
+                }
+            }
+        }
 
             
             
@@ -108,9 +135,12 @@ struct Render
                             // Reduce the perpendicular component to simulate sliding
                             sphereModel->Velocity = velocityParallel - 0.2f * velocityPerpendicular ;
                             friction = PCloud.vertices[triangle.A].Friction;
-
                             // Move the sphere with the vertex friction
                             sphere.Move(*sphereModel, deltaTime, gravitiy, friction, mass);
+                            if (sphereModel->PlayerPos.y < spherePosition.y)
+                            {
+                                sphereModel->PlayerPos.y = spherePosition.y;
+                            }
                         }
                     }
                 }
@@ -137,6 +167,7 @@ struct Render
                 glUniform3fv(LightLoc, 1, glm::value_ptr(glm::vec3(0,10,0)));
 
                 glLineWidth(3);
+            glPointSize( 5.0f );
 
             //     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 

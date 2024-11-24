@@ -41,7 +41,6 @@ public:
                     sphere_models[i]->PlayerPos += separation;
                     sphere_models[j]->PlayerPos -= separation;
 
-                    std::cout << "BallCollision" << '\n';
                 }
             }
         }

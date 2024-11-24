@@ -40,7 +40,8 @@ struct Render
         
         glm::vec3 normal = glm::vec3(0.f);
         const float gravitiy = 9.81f ;
-        float friction = 0.0000001f;
+        float friction = pointCloud.friction;
+        float mass = 2.f;
         
         
         model floorModel, ZWallP, ZWallN, XWallP, XWallN, PCloud;
@@ -90,7 +91,7 @@ struct Render
             
             for (auto value : sphere_models_ptr)
             {
-                sphere.Move(*value, deltaTime, gravitiy, friction);
+                sphere.Move(*value, deltaTime, gravitiy, friction, mass);
             }
 
             for (model* sphereModel : sphere_models_ptr) {
@@ -98,17 +99,19 @@ struct Render
                 std::vector<Triangle> relevantTriangles = grid.getTrianglesInCell(spherePosition);
 
                 for (const auto& triangle : relevantTriangles) {
-                    if (calculateBarycentric(PCloud.vertices[triangle.A], PCloud.vertices[triangle.B], PCloud.vertices[triangle.C], spherePosition , normal)) {
-                        //sphereModel->PlayerPos = spherePosition;
+                    if (calculateBarycentric(PCloud.vertices[triangle.A], PCloud.vertices[triangle.B], PCloud.vertices[triangle.C], spherePosition, normal)) {
                         if (sphereModel->PlayerPos.y <= spherePosition.y && sphereModel->Velocity.y < 0) {
-                            
                             glm::vec3 normal = glm::normalize(glm::cross(PCloud.vertices[triangle.B].XYZ - PCloud.vertices[triangle.A].XYZ, PCloud.vertices[triangle.C].XYZ - PCloud.vertices[triangle.A].XYZ));
-                            sphereModel->Velocity = glm::reflect(sphereModel->Velocity, normal) * 0.65f;
+                            glm::vec3 velocityPerpendicular = glm::dot(sphereModel->Velocity , normal) * normal;
+                            glm::vec3 velocityParallel = sphereModel->Velocity - velocityPerpendicular;
+
+                            // Reduce the perpendicular component to simulate sliding
+                            sphereModel->Velocity = velocityParallel - 0.2f * velocityPerpendicular ;
+                            friction = PCloud.vertices[triangle.A].Friction;
+
+                            // Move the sphere with the vertex friction
+                            sphere.Move(*sphereModel, deltaTime, gravitiy, friction, mass);
                         }
-                        
-                        coll.CloudSphereCollition( PCloud, sphere_models_ptr, deltaTime, gravitiy, glm::vec3(0.f));
-                        // Update the sphere's position
-                        /*break; // Exit the loop once the position is updated*/
                     }
                 }
             }
@@ -223,7 +226,7 @@ struct Render
         if(glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
         {
             std::cout<<"move forward"<<std::endl;
-            sphere.Velocity = glm::vec3(8.f,0.f,0.f);
+            sphere.Velocity = glm::vec3(8.f,1.f,0.f);
         }
 
         if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
@@ -231,6 +234,7 @@ struct Render
             std::cout<<"NewPos"<<std::endl;
             sphere.PlayerPos = camera.cameraPos;
             sphere.Velocity = camera.cameraFront * 8.f ;
+            //sphere.Velocity = glm::vec3(0.f);
         }
     }
 

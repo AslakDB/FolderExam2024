@@ -16,6 +16,8 @@
 
 void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
 {
+    friction = 0.001f;
+    glm ::vec3 color = glm::vec3(0.0f, 1.0f, 0.0f);
     std::vector<Vertex> points;
     std::ifstream file(path);
     std::string line;
@@ -25,8 +27,8 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
         return;
     }
 
-    minPoint = glm::vec3(FLT_MAX);
-    maxPoint = glm::vec3(-FLT_MAX);
+    glm::vec3 minPoint(FLT_MAX);
+    glm::vec3 maxPoint(-FLT_MAX);
     bool skipLine = true;
     int count = 0;
     while (std::getline(file, line)) {
@@ -42,7 +44,7 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
             float yf = z;
             float zf = y;
 
-            Vertex point(glm::vec3(xf, yf, zf), glm::vec3(0.f), glm::vec3(1.f));
+            Vertex point(glm::vec3(xf, yf, zf), glm::vec3(0.f), glm::vec3(1.f), friction);
             // Update min/max bounds
             minPoint = glm::min(minPoint, point.XYZ);
             maxPoint = glm::max(maxPoint, point.XYZ);
@@ -57,7 +59,16 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
         point.XYZ -= minPoint;
         point.XYZ *= 0.1f;
         point.XYZ.x *= -1;
-        PointCloudModel.vertices.emplace_back(point.XYZ, glm::vec3(0.f), glm::vec3(0.5f));
+        if (point.XYZ.x > -25.f) {
+            friction = 10.f;
+            color = glm::vec3(1.0f, 0.0f, 0.0f);
+        }
+        else
+        {
+            friction = 0.01f;
+            color = glm::vec3(0.0f, 1.0f, 0.0f);
+        }
+        PointCloudModel.vertices.emplace_back(point.XYZ, glm::vec3(0.f), color, friction);
     }
 
 

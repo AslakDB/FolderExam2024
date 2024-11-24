@@ -13,7 +13,8 @@ struct Vertex {
     glm::vec3 XYZ;
     glm::vec3 RGB;
     glm::vec3 Normals;
-    Vertex(glm::vec3 XYZ,glm::vec3 Normals, glm::vec3 RGB) : XYZ(XYZ), RGB(RGB), Normals(Normals) {}
+    float Friction = 0.0f;
+    Vertex(glm::vec3 XYZ,glm::vec3 Normals, glm::vec3 RGB, float friction) : XYZ(XYZ), RGB(RGB), Normals(Normals), Friction(friction) {}
 };
 
 struct Triangle {

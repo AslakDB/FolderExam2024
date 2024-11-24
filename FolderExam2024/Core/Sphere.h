@@ -17,11 +17,11 @@ public:
         
 
         int index1 =SphereModel.vertices.size(); 
-        SphereModel.vertices.emplace_back(v1,glm::vec3(0.f),glm::vec3(1.f,0.f,0.f));
+        SphereModel.vertices.emplace_back(v1,glm::vec3(0.f),glm::vec3(1.f,0.f,0.f),0);
         int index2 = SphereModel.vertices.size();
-        SphereModel.vertices.emplace_back(v2,glm::vec3(0.f),glm::vec3(1.f,0.f,0.f));
+        SphereModel.vertices.emplace_back(v2,glm::vec3(0.f),glm::vec3(1.f,0.f,0.f),0);
         int index3 = SphereModel.vertices.size();
-        SphereModel.vertices.emplace_back(v3,glm::vec3(0.f),glm::vec3(1.f,0.f,0.f));
+        SphereModel.vertices.emplace_back(v3,glm::vec3(0.f),glm::vec3(1.f,0.f,0.f),0);
         
         SubDivide(A,index1,index2, NumOfDiv -1, SphereModel);
         SubDivide(C,index2,index3, NumOfDiv -1,SphereModel);
@@ -37,12 +37,12 @@ public:
 
 inline void CreateSphere(model& SphereModel)
 {
-    SphereModel.vertices.emplace_back(glm::vec3(0.f,0.f,1.f), glm::vec3(0.f), glm::vec3(0.6f));
-    SphereModel.vertices.emplace_back(glm::vec3(1.f,0.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
-    SphereModel.vertices.emplace_back(glm::vec3(0.f,1.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
-    SphereModel.vertices.emplace_back(glm::vec3(-1.f,0.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
-    SphereModel.vertices.emplace_back(glm::vec3(0.f,-1.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
-    SphereModel.vertices.emplace_back(glm::vec3(0.f,0.f,-1.f), glm::vec3(0.f), glm::vec3(0.6f));
+    SphereModel.vertices.emplace_back(glm::vec3(0.f,0.f,1.f), glm::vec3(0.f), glm::vec3(0.6f),0);
+    SphereModel.vertices.emplace_back(glm::vec3(1.f,0.f,0.f), glm::vec3(0.f), glm::vec3(0.6f),0);
+    SphereModel.vertices.emplace_back(glm::vec3(0.f,1.f,0.f), glm::vec3(0.f), glm::vec3(0.6f),0);
+    SphereModel.vertices.emplace_back(glm::vec3(-1.f,0.f,0.f), glm::vec3(0.f), glm::vec3(0.6f),0);
+    SphereModel.vertices.emplace_back(glm::vec3(0.f,-1.f,0.f), glm::vec3(0.f), glm::vec3(0.6f),0);
+    SphereModel.vertices.emplace_back(glm::vec3(0.f,0.f,-1.f), glm::vec3(0.f), glm::vec3(0.6f),0);
 
     SubDivide(0,1,2,4, SphereModel);
     SubDivide(0,2,3,4, SphereModel);
@@ -71,17 +71,13 @@ SphereModel.Bind();
     SphereModel.PlayerScale = glm::vec3(0.5f);
 }
 
-    void Move(model& SphereModel, float deltatime,  float gravity, float friction)
+void Move(model& SphereModel, float deltatime, float gravity, float friction, float mass)
 {
-     SphereModel.PlayerPos += SphereModel.Velocity * deltatime;
-     SphereModel.Velocity.y -= gravity * deltatime;
+    SphereModel.PlayerPos += SphereModel.Velocity * deltatime;
+    SphereModel.Velocity.y -= (gravity / mass) * deltatime;
 
-     // Apply friction to the horizontal components of the velocity
-     SphereModel.Velocity.x *= (1.0f - friction * deltatime);
-     SphereModel.Velocity.z *= (1.0f - friction * deltatime);
+    // Apply friction to the horizontal components of the velocity
+    SphereModel.Velocity.x *= (1.0f - (friction / mass) * deltatime);
+    SphereModel.Velocity.z *= (1.0f - (friction / mass) * deltatime);
 }
-
-    
-   
-   
 };

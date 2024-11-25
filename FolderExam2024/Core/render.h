@@ -9,6 +9,8 @@
 #include "Collision.h"
 #include "PointCloud.h"
 #include <chrono>
+#include <map>
+
 #include "grid.h"
 #include "TrackingPath.h"
 
@@ -45,19 +47,36 @@ struct Render
         float mass = 4.f;
         
         
-        model floorModel, ZWallP, ZWallN, XWallP, XWallN, PCloud, TrackPath;
-        std::vector<model*> models = { &floorModel, &ZWallP, &ZWallN, &XWallP, &XWallN, &PCloud, &TrackPath };
+        model floorModel, ZWallP, ZWallN, XWallP, XWallN, PCloud, Track_Points;
+        std::vector<model*> models = { &floorModel, &ZWallP, &ZWallN, &XWallP, &XWallN, &PCloud, &Track_Points };
 
+
+      
+        
         std::vector<model> sphereModels(20);
         std::vector<model*> sphere_models_ptr;
 
+        
+        std::vector<model> TrackPath(sphereModels.size());
+        
+        
+        /*
+        for (int i = 0; i < sphereModels.size(); ++i) {
+            TrackPath.emplace_back(&TrackPath[i]);
+        }*/
+        
         for (int i = 0; i < sphereModels.size(); ++i) {
             sphere_models_ptr.emplace_back(&sphereModels[i]);
             sphere.CreateSphere(sphereModels[i]);
+
         }
 
-       std::vector<glm::vec3>  BSplinePoint ;
-        trackingPath.CreateBSplinePath(TrackPath, BSplinePoint);
+
+     
+       std::vector<glm::vec3>  BSplinePoint;
+        trackingPath.DrawPoints(Track_Points, BSplinePoint);
+        
+        
         glm::mat4 trans = glm::mat4(1.0f);
         glm::mat4 projection;
 
@@ -83,6 +102,7 @@ struct Render
         {
             value->Velocity = glm::vec3(-1.f,0.f,0.f);
         }
+        std::map<int, std::vector<glm::vec3>> sphereControlPoints;
 
         int framecount = 0;
         int trackpoints = 0;
@@ -94,32 +114,27 @@ struct Render
           //  coll.SphereBoxCollision(sphere_models,models); //When i dont have models, this sets Sphere velocity to NaN
 
 
-              if (framecount % 100 == 0) {
-            for (auto value : sphere_models_ptr) {
-                BSplinePoint.emplace_back(value->PlayerPos);
-                if (BSplinePoint.size() > 5) {
-                    BSplinePoint.erase(BSplinePoint.begin());
-                }
-                try {
-                    // Ensure there are enough points for B-spline calculation
-                    if (BSplinePoint.size() >= 4) {
-                        trackingPath.CreateBSplinePath(TrackPath, BSplinePoint);
-                    } else {
-                        trackingPath.DrawPoints(TrackPath, BSplinePoint);
+            if (framecount % 100 == 0)
+            {
+                trackpoints++;
+                for (int i = 0; i < sphere_models_ptr.size(); ++i)
+                {
+                    sphere_models_ptr[i]->points.push_back(sphere_models_ptr[i]->PlayerPos);
+                    trackingPath.DrawPoints(Track_Points, sphere_models_ptr[i]->points);
+
+                    if (trackpoints > 3)
+                    {
+                        trackingPath.CreateBSplinePath(TrackPath[i], sphere_models_ptr[i]->points);
                     }
-                    
-                } catch (const std::exception& e) {
-                    std::cerr << "Exception in render loop: " << e.what() << std::endl;
                 }
             }
-        }
-
             
             
             for (auto value : sphere_models_ptr)
             {
                 sphere.Move(*value, deltaTime, gravitiy, friction, mass);
             }
+            
 
             for (model* sphereModel : sphere_models_ptr) {
                 glm::vec3 spherePosition = sphereModel->PlayerPos;
@@ -171,13 +186,20 @@ struct Render
 
             //     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
-                for (model* element : sphere_models_ptr)
+                for (model& element : sphereModels)
                 {
-                    element->CalculateMatrix();
-                    element->CalculateBoundingBox();
-                    element->DrawMesh(shaderProgram);
+                    element.CalculateMatrix();
+                    element.CalculateBoundingBox();
+                    element.DrawMesh(shaderProgram);
 
                 }
+
+            for (model &element : TrackPath)
+            {
+                element.CalculateMatrix();
+                element.CalculateBoundingBox();
+                element.DrawMesh(shaderProgram);
+            }
                 for (model* element : models)
                 {
                     element->CalculateMatrix();

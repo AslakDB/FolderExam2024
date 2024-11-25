@@ -6,6 +6,7 @@ class Sphere{
 public:
    
     float radius = 0.25f;
+    
  void SubDivide(int A,int B, int C, int NumOfDiv, model& SphereModel)
 {
     

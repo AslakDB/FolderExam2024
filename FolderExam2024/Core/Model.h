@@ -22,6 +22,8 @@ unsigned int VBO, VAO, EBO;
 
     glm::mat4 ModelMatrix = glm::mat4(1.f);
 
+    std::vector<glm::vec3> points;
+    
     aabb BoundingBox;
     
     bool isLine = false;
@@ -31,6 +33,9 @@ unsigned int VBO, VAO, EBO;
     glm::vec3 PlayerScale = glm::vec3(1.f);
     glm::vec3 PlayerRotation = glm::vec3(0.f);
     glm::vec3 Velocity = glm::vec3(0.f);
+
+    
+    
     auto Bind() -> void;
    
     glm::vec3 GetPlayerPos(){return PlayerPos;}

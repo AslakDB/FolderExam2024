@@ -85,7 +85,7 @@ void model::DrawMesh(unsigned int shaderProgram)
     glBindVertexArray(VAO);
 
     if(isLine) {
-        glDrawArrays(GL_LINES, 0, vertices.size());
+        glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
         glBindVertexArray(0);
 
         return;

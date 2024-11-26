@@ -125,6 +125,10 @@ struct Render
                     if (trackpoints > 3)
                     {
                         trackingPath.CreateBSplinePath(TrackPath[i], sphere_models_ptr[i]->points);
+                        if (sphere_models_ptr[i]->points.size() >15)
+                        {
+                            sphere_models_ptr[i]->points.erase(sphere_models_ptr[i]->points.begin());
+                        }
                     }
                 }
             }

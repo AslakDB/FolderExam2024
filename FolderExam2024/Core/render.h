@@ -120,7 +120,7 @@ struct Render
                 for (int i = 0; i < sphere_models_ptr.size(); ++i)
                 {
                     sphere_models_ptr[i]->points.push_back(sphere_models_ptr[i]->PlayerPos);
-                    trackingPath.DrawPoints(Track_Points, sphere_models_ptr[i]->points);
+                    trackingPath.DrawPoints(Track_Points, sphere_models_ptr[0]->points);
 
                     if (trackpoints > 3)
                     {

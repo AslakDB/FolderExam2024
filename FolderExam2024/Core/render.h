@@ -114,7 +114,7 @@ struct Render
           //  coll.SphereBoxCollision(sphere_models,models); //When i dont have models, this sets Sphere velocity to NaN
 
 
-            if (framecount % 100 == 0)
+            if (framecount % 20 == 0)
             {
                 trackpoints++;
                 for (int i = 0; i < sphere_models_ptr.size(); ++i)

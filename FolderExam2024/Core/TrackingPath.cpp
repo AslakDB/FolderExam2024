@@ -61,7 +61,7 @@ void TrackingPath::CreateBSplinePath(model& pathModel,const std::vector<glm::vec
 {
     try {
         // Generate 100 points for the B-spline
-        std::vector<glm::vec3> splinePoints = CalculateBSpline(Points, 1000);
+        std::vector<glm::vec3> splinePoints = CalculateBSpline(Points, 100);
         // Clear existing vertices
         pathModel.vertices.clear();
 

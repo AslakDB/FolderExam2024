@@ -9,4 +9,5 @@ public:
     glm::vec3 maxPoint;
     float friction = 0.f;
     void CreatePlane(model& PointCloudModel, std::string path);
+    void CreateTextfile(std::vector<Vertex> points);
 };

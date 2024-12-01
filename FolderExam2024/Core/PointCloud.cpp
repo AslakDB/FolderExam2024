@@ -21,7 +21,7 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
     std::vector<Vertex> points;
     std::ifstream file(path);
     std::string line;
-
+  
     if (!file.is_open()) {
         std::cout << "Failed to open file: " << path << std::endl;
         return;
@@ -41,7 +41,7 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
         // Supports both space and tab separated values
         if (sscanf_s(line.c_str(), "%f %f %f", &x, &y, &z) == 3 || sscanf_s(line.c_str(), "%f\t%f\t%f", &x, &y, &z) == 3) {
             float xf = x;
-            float yf = z;
+            float yf = z ;
             float zf = y;
 
             Vertex point(glm::vec3(xf, yf, zf), glm::vec3(0.f), glm::vec3(1.f), friction);
@@ -49,11 +49,15 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
             minPoint = glm::min(minPoint, point.XYZ);
             maxPoint = glm::max(maxPoint, point.XYZ);
 
+            
+
             points.push_back(point);
         }
         count++;
     }
 
+    //CreateTextfile( points);
+    
     file.close();
     for (auto &point : points) {
         point.XYZ -= minPoint;
@@ -102,6 +106,27 @@ void PointCloud::CreatePlane(model& PointCloudModel, std::string path)
         PointCloudModel.vertices[index.C].Normals += glm::normalize(normal);
     }
     PointCloudModel.Bind();
+}
+
+void PointCloud::CreateTextfile(std::vector<Vertex> points)
+{
+    std::ofstream outFile("PointCloud.txt");
+
+    if (!outFile.is_open()) {
+        std::cout << "Failed to open output file: PointCloud.txt" << std::endl;
+        return;
+    }
+
+    // Write the number of points at the top
+    outFile << points.size() << std::endl;
+
+    // Write each point to the file
+    for (const auto& point : points) {
+        outFile << point.XYZ.x << " " << point.XYZ.y << " " << point.XYZ.z << std::endl;
+    }
+
+    // Close the output file
+    outFile.close();
 }
 
 

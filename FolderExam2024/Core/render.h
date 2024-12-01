@@ -27,8 +27,8 @@ float lastX = 960, lastY = 540;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
-void ProsessInput(GLFWwindow *window, float deltaTime, model& sphere);
-float calculateNormal(glm::vec3& vektor1, glm::vec3& vektor2);
+void ProsessInput(GLFWwindow *window, float deltaTime, model& sphere );
+float calculateNormal(glm::vec3& vector_1, glm::vec3& vector_2);
 bool calculateBarycentric(Vertex& P, Vertex& R, Vertex& Q, glm::vec3& PlayerPos, glm::vec3 normal);
 
 struct Render
@@ -60,11 +60,6 @@ struct Render
         std::vector<model> TrackPath(sphereModels.size());
         
         
-        /*
-        for (int i = 0; i < sphereModels.size(); ++i) {
-            TrackPath.emplace_back(&TrackPath[i]);
-        }*/
-        
         for (int i = 0; i < sphereModels.size(); ++i) {
             sphere_models_ptr.emplace_back(&sphereModels[i]);
             sphere.CreateSphere(sphereModels[i]);
@@ -85,7 +80,7 @@ struct Render
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[seconds]" << std::endl;
         
-        
+
          grid grid(pointCloud.minPoint, pointCloud.maxPoint, cellSize);
                 for (const auto& triangle : PCloud.indices) {
                     grid.addTriangle(triangle, PCloud.vertices);
@@ -104,6 +99,8 @@ struct Render
         }
         std::map<int, std::vector<glm::vec3>> sphereControlPoints;
 
+
+        
         int framecount = 0;
         int trackpoints = 0;
         while (!glfwWindowShouldClose(window))
@@ -111,8 +108,6 @@ struct Render
             framecount++;
             coll.SphereSphereCollision(sphere_models_ptr);
             
-          //  coll.SphereBoxCollision(sphere_models,models); //When i dont have models, this sets Sphere velocity to NaN
-
 
             if (framecount % 20 == 0)
             {
@@ -190,13 +185,7 @@ struct Render
 
             //     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
-                for (model& element : sphereModels)
-                {
-                    element.CalculateMatrix();
-                    element.CalculateBoundingBox();
-                    element.DrawMesh(shaderProgram);
-
-                }
+               
 
             for (model &element : TrackPath)
             {
@@ -211,9 +200,16 @@ struct Render
                     //glPointSize(2.f);
                     element->DrawMesh(shaderProgram);
                 }
+            
 
-                // bsplineModel2.CalculateMatrix();
-                // bsplineModel2.DrawMesh(shaderProgram);
+            for (model& element : sphereModels)
+                {
+                    element.CalculateMatrix();
+                    element.CalculateBoundingBox();
+                    element.DrawMesh(shaderProgram);
+
+                }
+                
             
                 glfwSwapBuffers(window);
                 glfwPollEvents();
@@ -288,16 +284,23 @@ struct Render
 
         if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
         {
-            std::cout<<"NewPos"<<std::endl;
             sphere.PlayerPos = camera.cameraPos;
             sphere.Velocity = camera.cameraFront * 8.f ;
-            //sphere.Velocity = glm::vec3(0.f);
+            
         }
+        if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+        {
+            sphere.PlayerPos = camera.cameraPos;
+            
+            sphere.Velocity = glm::vec3(0.f);
+        }
+        //create a new sphere
+        
     }
 
 
-    float calculateNormal(glm::vec3& vektor1, glm::vec3& vektor2) {
-        return vektor1[0]* vektor2[2]- vektor2[0]*vektor1[2];
+    float calculateNormal(glm::vec3& vector_1, glm::vec3& vector_2) {
+        return vector_1[0]* vector_2[2]- vector_2[0]*vector_1[2];
     }
 
     bool calculateBarycentric(Vertex& P, Vertex& R, Vertex& Q, glm::vec3& PlayerPos, glm::vec3 normal) {

@@ -10,6 +10,7 @@
 #include "PointCloud.h"
 #include <chrono>
 #include <map>
+#include <windows.h>
 
 #include "grid.h"
 #include "TrackingPath.h"
@@ -27,7 +28,7 @@ float lastX = 960, lastY = 540;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
-void ProsessInput(GLFWwindow *window, float deltaTime, model& sphere );
+void ProsessInput(GLFWwindow *window, float deltaTime, model& sphere, model& sphere2);
 float calculateNormal(glm::vec3& vector_1, glm::vec3& vector_2);
 bool calculateBarycentric(Vertex& P, Vertex& R, Vertex& Q, glm::vec3& PlayerPos, glm::vec3 normal);
 
@@ -91,6 +92,7 @@ struct Render
         {
             
             sphere_models_ptr[i]->PlayerPos = glm::vec3(-5 - i, 1, 5 + i*2);
+            sphere_models_ptr[i]->Velocity = glm::vec3(0.f,0.f,-8.f);
         }
         
         for (auto value : sphere_models_ptr)
@@ -120,7 +122,7 @@ struct Render
                     if (trackpoints > 3)
                     {
                         trackingPath.CreateBSplinePath(TrackPath[i], sphere_models_ptr[i]->points);
-                        if (sphere_models_ptr[i]->points.size() >15)
+                        if (sphere_models_ptr[i]->points.size() > 34)
                         {
                             sphere_models_ptr[i]->points.erase(sphere_models_ptr[i]->points.begin());
                         }
@@ -163,7 +165,7 @@ struct Render
                 float currentFrame = glfwGetTime();
                 deltaTime = currentFrame - lastFrame;
                 lastFrame = currentFrame;
-                ProsessInput(window, deltaTime,  sphereModels[0]);
+                ProsessInput(window, deltaTime,  sphereModels[0], sphereModels[1]);
             
 
                 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
@@ -181,7 +183,7 @@ struct Render
                 glUniform3fv(LightLoc, 1, glm::value_ptr(glm::vec3(0,10,0)));
 
                 glLineWidth(3);
-            glPointSize( 5.0f );
+            glPointSize( 2.0f );
 
             //     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
@@ -251,7 +253,7 @@ struct Render
     }
 
 
-    void ProsessInput(GLFWwindow *window, float deltaTime, model& sphere) {
+    void ProsessInput(GLFWwindow *window, float deltaTime, model& sphere, model& sphere2) {
 
         glm::vec3 cameraFrontXZ = glm::normalize(glm::vec3(camera.cameraFront.x, 0.0f, camera.cameraFront.z));
 
@@ -294,8 +296,14 @@ struct Render
             
             sphere.Velocity = glm::vec3(0.f);
         }
-        //create a new sphere
         
+        if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+        {
+            sphere2.PlayerPos = camera.cameraPos;
+            
+            sphere2.Velocity = glm::vec3(0.f);
+        }
+       
     }
 
 

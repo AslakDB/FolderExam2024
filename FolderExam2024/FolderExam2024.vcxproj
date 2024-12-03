@@ -173,7 +173,9 @@
     <ClInclude Include="Core\AABB.h" />
     <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Collision.h" />
+    <ClInclude Include="Core\Components.h" />
     <ClInclude Include="Core\delaunator.hpp" />
+    <ClInclude Include="Core\Entity.h" />
     <ClInclude Include="Core\grid.h" />
     <ClInclude Include="Core\Model.h" />
     <ClInclude Include="Core\PointCloud.h" />
@@ -181,6 +183,7 @@
     <ClInclude Include="Core\Setup.h" />
     <ClInclude Include="Core\Shaders.h" />
     <ClInclude Include="Core\Sphere.h" />
+    <ClInclude Include="Core\System.h" />
     <ClInclude Include="Core\TrackingPath.h" />
     <ClInclude Include="Core\Vertex.h" />
   </ItemGroup>
